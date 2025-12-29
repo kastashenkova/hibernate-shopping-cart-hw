@@ -41,15 +41,18 @@ public class ShoppingCartDaoImpl implements ShoppingCartDao {
 
     @Override
     public Optional<ShoppingCart> getByUser(User user) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        CriteriaBuilder cb = session.getCriteriaBuilder();
-        CriteriaQuery<ShoppingCart> query = cb.createQuery(ShoppingCart.class);
-        Root<ShoppingCart> root = query.from(ShoppingCart.class);
-        root.fetch("tickets", JoinType.LEFT);
-        query.select(root)
-                .where(cb.equal(root.get("user"), user));
-        return Optional.ofNullable(
-                session.createQuery(query).uniqueResult());
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<ShoppingCart> query = cb.createQuery(ShoppingCart.class);
+            Root<ShoppingCart> root = query.from(ShoppingCart.class);
+            root.fetch("tickets", JoinType.LEFT);
+            query.select(root)
+                    .where(cb.equal(root.get("user"), user));
+            return Optional.ofNullable(
+                    session.createQuery(query).uniqueResult());
+        } catch (Exception e) {
+            throw new DataProcessingException("Can't get shopping cart " + user, e);
+        }
     }
 
     @Override

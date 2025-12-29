@@ -2,14 +2,12 @@ package mate.academy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import mate.academy.exception.RegistrationException;
 import mate.academy.lib.Injector;
 import mate.academy.model.CinemaHall;
 import mate.academy.model.Movie;
 import mate.academy.model.MovieSession;
 import mate.academy.model.ShoppingCart;
-import mate.academy.model.Ticket;
 import mate.academy.model.User;
 import mate.academy.security.AuthenticationService;
 import mate.academy.service.CinemaHallService;
@@ -73,28 +71,15 @@ public class Main {
         System.out.println(movieSessionService.findAvailableSessions(
                 fastAndFurious.getId(), LocalDate.now()));
 
-        User bob = new User();
-        bob.setEmail("bob@gmail.com");
-        bob.setPassword("Bob");
         AuthenticationService authenticationService = (AuthenticationService)
                 injector.getInstance(AuthenticationService.class);
-        authenticationService.register(bob.getEmail(), bob.getPassword());
+        User bob = authenticationService.register("bob@gmail.com", "Bob");
 
-        Ticket ticket1 = new Ticket();
-        ticket1.setMovieSession(tomorrowMovieSession);
-        ticket1.setUser(bob);
-        Ticket ticket2 = new Ticket();
-        ticket2.setMovieSession(afterTomorrowMovieSession);
-        ticket2.setUser(bob);
-        List<Ticket> tickets = List.of(ticket1, ticket2);
         ShoppingCartService shoppingCartService = (ShoppingCartService)
                 injector.getInstance(ShoppingCartService.class);
-        ShoppingCart cart = shoppingCartService.getByUser(bob);
-        cart.setTickets(tickets);
         shoppingCartService.addSession(tomorrowMovieSession, bob);
         shoppingCartService.addSession(afterTomorrowMovieSession, bob);
-        shoppingCartService.registerNewShoppingCart(bob);
-        shoppingCartService.getByUser(bob);
+        ShoppingCart cart = shoppingCartService.getByUser(bob);
         shoppingCartService.clear(cart);
     }
 }
